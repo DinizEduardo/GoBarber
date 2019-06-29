@@ -2,8 +2,39 @@ import * as Yup from 'yup';
 import { startOfHour, parseISO, isBefore } from 'date-fns';
 import Appointment from '../models/Appointment';
 import User from '../models/User';
+import File from '../models/File';
 
 class AppointmentController {
+  async index(req, res) {
+    const { page = 1 } = req.query;
+
+    const appointments = await Appointment.findAll({
+      where: {
+        user_id: req.userId,
+        canceled_at: null,
+      },
+      attributes: ['id', 'date'],
+      limit: 20, // lista 20 registros
+      offset: (page - 1) * 20, // Quantos registro ele deve pular
+      order: ['date'],
+      include: [
+        {
+          model: User,
+          as: 'provider', // O 'as' tem que ser igual ao valor que está model Appointment.js
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: File,
+              as: 'avatar', // O 'as' tem que ser igual ao valor que está no model User
+              attributes: ['id', 'path', 'url'],
+            },
+          ],
+        },
+      ],
+    });
+    return res.json(appointments);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       date: Yup.date().required(),

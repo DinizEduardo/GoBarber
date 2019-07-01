@@ -17,7 +17,7 @@ class AppointmentController {
         user_id: req.userId,
         canceled_at: null,
       },
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'past', 'cancelable'],
       limit: 20, // lista 20 registros
       offset: (page - 1) * 20, // Quantos registro ele deve pular
       order: ['date'],
